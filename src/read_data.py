@@ -5,7 +5,7 @@ from keras.preprocessing.image import ImageDataGenerator
 BATCH_SIZE = 16
 
 
-def get_train_generator(training_data_dir="/home/sdjksdafji/Documents/others/Data558/data/train/"):
+def get_train_generator(training_data_dir="/home/sdjksdafji/Documents/others/Data558/training_data"):
     train_datagen = ImageDataGenerator(
         rotation_range=160,
         width_shift_range=0.1,
@@ -15,6 +15,15 @@ def get_train_generator(training_data_dir="/home/sdjksdafji/Documents/others/Dat
         horizontal_flip=True,
         fill_mode="nearest")
     return train_datagen.flow_from_directory(
+        training_data_dir,
+        target_size=(150, 150),
+        batch_size=BATCH_SIZE,
+        class_mode='categorical')
+
+
+def get_test_generator(training_data_dir="/home/sdjksdafji/Documents/others/Data558/testing_data"):
+    test_datagen = ImageDataGenerator()
+    return test_datagen.flow_from_directory(
         training_data_dir,
         target_size=(150, 150),
         batch_size=BATCH_SIZE,
