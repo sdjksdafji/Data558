@@ -1,15 +1,16 @@
+from keras.callbacks import EarlyStopping
 from keras.layers import Activation, Flatten, Dense, Dropout
 from keras.layers import Conv2D, MaxPooling2D
 from keras.models import Sequential
 from keras.optimizers import Adadelta
 
-from read_data import get_train_generator, get_test_generator
+from read_data import get_train_generator, get_test_generator, IMG_H, IMG_W
 
 # generate_training_testing_split()
 
 model = Sequential()
 
-model.add(Conv2D(64, (3, 3), input_shape=(150, 150, 3), padding="same"))
+model.add(Conv2D(64, (3, 3), input_shape=(IMG_H, IMG_W, 3), padding="same"))
 model.add(Activation('relu'))
 model.add(Conv2D(64, (3, 3), padding="same"))
 model.add(Activation('relu'))
@@ -50,10 +51,13 @@ test_generator = get_test_generator()
 
 print(model.summary())
 
+earlystopper = EarlyStopping(monitor='loss', min_delta=1e-3, patience=20, verbose=0, mode='auto')
+
 model.fit_generator(
     train_generator,
-    steps_per_epoch=2000,
-    epochs=100,
+    steps_per_epoch=100,
+    epochs=500,
     validation_data=test_generator,
-    validation_steps=800,
-    workers=7)
+    validation_steps=25,
+    workers=7,
+    callbacks=[earlystopper])
