@@ -61,3 +61,12 @@ model.fit_generator(
     validation_steps=25,
     workers=7,
     callbacks=[earlystopper])
+
+
+
+# result:
+# Epoch 258/500
+# loss: 0.9328
+# categorical_accuracy: 0.7513
+# val_loss: 4.3313
+# val_categorical_accuracy: 0.3126
