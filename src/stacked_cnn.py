@@ -82,17 +82,19 @@ def train_top_model():
 
     model = Sequential()
     model.add(Flatten(input_shape=train_data.shape[1:]))
-    model.add(Dropout(dropout_rate))
-    model.add(Dense(512,
+    model.add(Dense(2048,
                     kernel_regularizer=regularizer,
                     activation='relu'))
     model.add(Dropout(dropout_rate))
-    model.add(Dense(256,
+    model.add(Dense(2048,
+                    kernel_regularizer=regularizer,
+                    activation='relu'))
+    model.add(Dropout(dropout_rate))
+    model.add(Dense(1024,
                     kernel_regularizer=regularizer,
                     activation='relu'))
     model.add(Dropout(dropout_rate))
     model.add(Dense(144,
-                    kernel_regularizer=regularizer,
                     activation='softmax'))
 
     model.compile(optimizer=Adadelta(lr=1.0, rho=0.95, epsilon=1e-08, decay=0.001),
@@ -111,8 +113,8 @@ def train_top_model():
 # save_bottlebeck_features()
 train_top_model()
 
-# Epoch 40/4000
-# loss: 0.7941
-# categorical_accuracy: 0.8746
-# val_loss: 3.0274
-# val_categorical_accuracy: 0.4028
+# Epoch 7/4000
+# loss: 0.9577
+# categorical_accuracy: 0.9325
+# val_loss: 3.9478
+# val_categorical_accuracy: 0.4150
