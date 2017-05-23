@@ -2,12 +2,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 
-BATCH_SIZE = 16
+BATCH_SIZE = 32
+IMG_H, IMG_W = 224, 224
 
 
-def get_train_generator(training_data_dir="/home/sdjksdafji/Documents/others/Data558/training_data"):
+def get_train_generator(training_data_dir="/home/sdjksdafji/Documents/others/Data558/training_data",
+                        preprocessing_function=None,
+                        width=IMG_W,
+                        height=IMG_H,
+                        batch_size=BATCH_SIZE):
     train_datagen = ImageDataGenerator(
-        rotation_range=160,
+        preprocessing_function=preprocessing_function,
+        rotation_range=20,
         width_shift_range=0.1,
         height_shift_range=0.1,
         shear_range=0.1,
@@ -16,17 +22,21 @@ def get_train_generator(training_data_dir="/home/sdjksdafji/Documents/others/Dat
         fill_mode="nearest")
     return train_datagen.flow_from_directory(
         training_data_dir,
-        target_size=(150, 150),
-        batch_size=BATCH_SIZE,
+        target_size=(width, height),
+        batch_size=batch_size,
         class_mode='categorical')
 
 
-def get_test_generator(training_data_dir="/home/sdjksdafji/Documents/others/Data558/testing_data"):
-    test_datagen = ImageDataGenerator()
+def get_test_generator(training_data_dir="/home/sdjksdafji/Documents/others/Data558/testing_data",
+                       preprocessing_function=None,
+                       width=IMG_W,
+                       height=IMG_H,
+                       batch_size=BATCH_SIZE):
+    test_datagen = ImageDataGenerator(preprocessing_function=preprocessing_function)
     return test_datagen.flow_from_directory(
         training_data_dir,
-        target_size=(150, 150),
-        batch_size=BATCH_SIZE,
+        target_size=(width, height),
+        batch_size=batch_size,
         class_mode='categorical')
 
 

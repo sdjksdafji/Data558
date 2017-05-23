@@ -5,12 +5,13 @@ import shutil
 
 import zlib
 
+project_path = "/home/sdjksdafji/Documents/others/Data558/"
+original_data_dir = "data/train"
+train_data_dir = "training_data"
+test_data_dir = "testing_data"
+
 
 def generate_training_testing_split(split=(8, 2)):
-    project_path = "/home/sdjksdafji/Documents/others/Data558/"
-    original_data_dir = "data/train"
-    train_data_dir = "training_data"
-    test_data_dir = "testing_data"
 
     train_data_path = os.path.join(project_path, train_data_dir)
     test_data_path = os.path.join(project_path, test_data_dir)
