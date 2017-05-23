@@ -1,7 +1,6 @@
 import numpy as np
 import shutil
 
-from keras.applications.imagenet_utils import preprocess_input
 from keras.callbacks import EarlyStopping
 from keras.optimizers import Adadelta
 from keras.preprocessing.image import ImageDataGenerator
@@ -14,10 +13,10 @@ import os
 from generate_data import project_path
 from read_data import get_train_generator, get_test_generator, BATCH_SIZE
 
-img_width, img_height = 150, 150
+inception_v3_width, inception_v3_height = 299, 299
 
-temp_folder_path = os.path.join(project_path, "tmp")
-top_model_weights_path = os.path.join(temp_folder_path, "/bottleneck_model.h5")
+temp_folder_path = os.path.join(project_path, "tmp", "inception_v3")
+top_model_weights_path = os.path.join(temp_folder_path, "bottleneck_model.h5")
 bottleneck_train_x_path = os.path.join(temp_folder_path, "bottleneck_train_x.npy")
 bottleneck_train_y_path = os.path.join(temp_folder_path, "bottleneck_train_y.npy")
 bottleneck_test_x_path = os.path.join(temp_folder_path, "bottleneck_test_x.npy")
@@ -35,7 +34,7 @@ def append_array(original, new):
         return np.vstack((original, new))
 
 
-def save_bottlebeck_features(pretrained_model=applications.VGG16(include_top=False, weights='imagenet'),
+def save_bottlebeck_features(pretrained_model=applications.InceptionV3(include_top=False, weights='imagenet'),
                              num_train_batches=2000,
                              num_test_batches=200):
     train_y = None
@@ -43,10 +42,12 @@ def save_bottlebeck_features(pretrained_model=applications.VGG16(include_top=Fal
     bottleneck_train_x = None
     bottleneck_test_x = None
 
-    generator = get_train_generator()
+    generator = get_train_generator(width=inception_v3_width, height=inception_v3_height)
     i = 0
     for batch_x, batch_y in generator:
-        batch_x = preprocess_input(batch_x)
+        if i == 0:
+            print(batch_x.shape)
+        batch_x = applications.inception_v3.preprocess_input(batch_x)
         bottleneck_batch_x = pretrained_model.predict(batch_x)
         bottleneck_train_x = append_array(bottleneck_train_x, bottleneck_batch_x)
         train_y = append_array(train_y, batch_y)
@@ -58,10 +59,10 @@ def save_bottlebeck_features(pretrained_model=applications.VGG16(include_top=Fal
     np.save(open(bottleneck_train_x_path, "wb"), bottleneck_train_x)
     np.save(open(bottleneck_train_y_path, "wb"), train_y)
 
-    generator = get_test_generator()
+    generator = get_test_generator(width=inception_v3_width, height=inception_v3_height)
     i = 0
     for batch_x, batch_y in generator:
-        batch_x = preprocess_input(batch_x)
+        batch_x = applications.inception_v3.preprocess_input(batch_x)
         bottleneck_batch_x = pretrained_model.predict(batch_x)
         bottleneck_test_x = append_array(bottleneck_test_x, bottleneck_batch_x)
         test_y = append_array(test_y, batch_y)
@@ -81,16 +82,12 @@ def train_top_model():
     validation_labels = np.load(open(bottleneck_test_y_path, "rb"))
 
     regularizer = None# regularizers.l2(0.001)
-    dropout_rate = 0.3
+    dropout_rate = 0.5
 
     print("Input shape: " + str(train_data.shape[1:]))
 
     model = Sequential()
     model.add(Flatten(input_shape=train_data.shape[1:]))
-    model.add(Dense(2048,
-                    kernel_regularizer=regularizer,
-                    activation='relu'))
-    model.add(Dropout(dropout_rate))
     model.add(Dense(2048,
                     kernel_regularizer=regularizer,
                     activation='relu'))
@@ -111,10 +108,5 @@ def train_top_model():
     model.save_weights(top_model_weights_path)
 
 
-# save_bottlebeck_features()
-train_top_model()
-
-# loss: 0.7390
-# categorical_accuracy: 0.7895
-# val_loss: 2.8223
-# val_categorical_accuracy: 0.4489
+save_bottlebeck_features()
+# train_top_model()
