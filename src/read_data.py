@@ -7,10 +7,13 @@ IMG_H, IMG_W = 224, 224
 
 
 def get_train_generator(training_data_dir="/home/sdjksdafji/Documents/others/Data558/training_data",
+                        preprocessing_function=None,
                         width=IMG_W,
-                        height=IMG_H):
+                        height=IMG_H,
+                        batch_size=BATCH_SIZE):
     train_datagen = ImageDataGenerator(
-        rotation_range=160,
+        preprocessing_function=preprocessing_function,
+        rotation_range=20,
         width_shift_range=0.1,
         height_shift_range=0.1,
         shear_range=0.1,
@@ -20,18 +23,20 @@ def get_train_generator(training_data_dir="/home/sdjksdafji/Documents/others/Dat
     return train_datagen.flow_from_directory(
         training_data_dir,
         target_size=(width, height),
-        batch_size=BATCH_SIZE,
+        batch_size=batch_size,
         class_mode='categorical')
 
 
 def get_test_generator(training_data_dir="/home/sdjksdafji/Documents/others/Data558/testing_data",
+                       preprocessing_function=None,
                        width=IMG_W,
-                       height=IMG_H):
-    test_datagen = ImageDataGenerator()
+                       height=IMG_H,
+                       batch_size=BATCH_SIZE):
+    test_datagen = ImageDataGenerator(preprocessing_function=preprocessing_function)
     return test_datagen.flow_from_directory(
         training_data_dir,
         target_size=(width, height),
-        batch_size=BATCH_SIZE,
+        batch_size=batch_size,
         class_mode='categorical')
 
 
