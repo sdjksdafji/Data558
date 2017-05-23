@@ -1,6 +1,7 @@
 import numpy as np
 import shutil
 
+from keras.applications.imagenet_utils import preprocess_input
 from keras.callbacks import EarlyStopping
 from keras.optimizers import Adadelta
 from keras.preprocessing.image import ImageDataGenerator
@@ -34,8 +35,8 @@ def append_array(original, new):
         return np.vstack((original, new))
 
 
-def save_bottlebeck_features(pretrained_model = applications.VGG16(include_top=False, weights='imagenet'),
-                             num_train_batches=1500,
+def save_bottlebeck_features(pretrained_model=applications.VGG16(include_top=False, weights='imagenet'),
+                             num_train_batches=2000,
                              num_test_batches=200):
     train_y = None
     test_y = None
@@ -45,6 +46,7 @@ def save_bottlebeck_features(pretrained_model = applications.VGG16(include_top=F
     generator = get_train_generator()
     i = 0
     for batch_x, batch_y in generator:
+        batch_x = preprocess_input(batch_x)
         bottleneck_batch_x = pretrained_model.predict(batch_x)
         bottleneck_train_x = append_array(bottleneck_train_x, bottleneck_batch_x)
         train_y = append_array(train_y, batch_y)
@@ -59,6 +61,7 @@ def save_bottlebeck_features(pretrained_model = applications.VGG16(include_top=F
     generator = get_test_generator()
     i = 0
     for batch_x, batch_y in generator:
+        batch_x = preprocess_input(batch_x)
         bottleneck_batch_x = pretrained_model.predict(batch_x)
         bottleneck_test_x = append_array(bottleneck_test_x, bottleneck_batch_x)
         test_y = append_array(test_y, batch_y)
@@ -77,8 +80,10 @@ def train_top_model():
     validation_data = np.load(open(bottleneck_test_x_path, "rb"))
     validation_labels = np.load(open(bottleneck_test_y_path, "rb"))
 
-    regularizer = regularizers.l2(0.001)
+    regularizer = None# regularizers.l2(0.001)
     dropout_rate = 0.3
+
+    print("Input shape: " + str(train_data.shape[1:]))
 
     model = Sequential()
     model.add(Flatten(input_shape=train_data.shape[1:]))
@@ -87,10 +92,6 @@ def train_top_model():
                     activation='relu'))
     model.add(Dropout(dropout_rate))
     model.add(Dense(2048,
-                    kernel_regularizer=regularizer,
-                    activation='relu'))
-    model.add(Dropout(dropout_rate))
-    model.add(Dense(1024,
                     kernel_regularizer=regularizer,
                     activation='relu'))
     model.add(Dropout(dropout_rate))
@@ -113,8 +114,7 @@ def train_top_model():
 # save_bottlebeck_features()
 train_top_model()
 
-# Epoch 7/4000
-# loss: 0.9577
-# categorical_accuracy: 0.9325
-# val_loss: 3.9478
-# val_categorical_accuracy: 0.4150
+# loss: 0.7390
+# categorical_accuracy: 0.7895
+# val_loss: 2.8223
+# val_categorical_accuracy: 0.4489
