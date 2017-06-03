@@ -272,6 +272,20 @@ fine_tuning_cnn()
 #     print(validation_data[i].shape)
 
 
+
+# id 8 do 0.5 l2 0.01 freeze 292 ready
+# Epoch 153/500
+# 100/100 [==============================] - 76s - loss: 1.3298 - categorical_accuracy: 0.9953 - val_loss: 2.1294 - val_categorical_accuracy: 0.7982
+# Epoch 154/500
+# 100/100 [==============================] - 76s - loss: 1.3179 - categorical_accuracy: 0.9963 - val_loss: 2.1294 - val_categorical_accuracy: 0.7917
+# Epoch 155/500
+# 100/100 [==============================] - 75s - loss: 1.3295 - categorical_accuracy: 0.9950 - val_loss: 2.1114 - val_categorical_accuracy: 0.8008
+# Epoch 156/500
+# 100/100 [==============================] - 76s - loss: 1.3178 - categorical_accuracy: 0.9947 - val_loss: 2.1060 - val_categorical_accuracy: 0.8060
+# Epoch 157/500
+# 100/100 [==============================] - 76s - loss: 1.3097 - categorical_accuracy: 0.9981 - val_loss: 2.1086 - val_categorical_accuracy: 0.8047
+
+
 # id 7 do 0.5 l2 0.01 freeze 228 ready
 # Epoch 26/500
 # 100/100 [==============================] - 85s - loss: 1.4975 - categorical_accuracy: 0.9887 - val_loss: 2.7963 - val_categorical_accuracy: 0.7782
