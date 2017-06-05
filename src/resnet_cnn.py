@@ -4,6 +4,7 @@ import shutil
 import csv
 
 import scipy
+from keras.applications import ResNet50
 from keras.applications.imagenet_utils import decode_predictions
 from keras.callbacks import EarlyStopping
 from keras.engine import Model
@@ -22,9 +23,9 @@ from keras_inceptionV4.inception_v4 import inception_v4
 import keras_inceptionV4
 from read_data import get_train_generator, get_test_generator, BATCH_SIZE
 
-inception_v4_width, inception_v4_height = 299, 299
+inception_v4_width, inception_v4_height = 224, 224
 
-temp_folder_path = os.path.join(project_path, "tmp", "inception_v4")
+temp_folder_path = os.path.join(project_path, "tmp", "resnet")
 top_model_weights_path = os.path.join(temp_folder_path, "bottleneck_model.h5")
 fine_tuned_model_weights_path = os.path.join(temp_folder_path, "fine_tuned_model.h5")
 bottleneck_train_x_path = os.path.join(temp_folder_path, "bottleneck_train_x.npy")
@@ -33,13 +34,10 @@ bottleneck_test_x_path = os.path.join(temp_folder_path, "bottleneck_test_x.npy")
 bottleneck_test_y_path = os.path.join(temp_folder_path, "bottleneck_test_y.npy")
 
 
-num_train_samples = 2000
-num_validation_samples = 800
-
 
 def get_pretrained_inception_v4():
-    model0 = inception_v4(num_classes=1001, dropout_keep_prob=0.5, include_top=True, weights='imagenet')
-    model = Model(inputs=model0.input, outputs=model0.layers[-4].output)
+    model0 = ResNet50(include_top=True, weights='imagenet')
+    model = Model(inputs=model0.input, outputs=model0.layers[-2].output)
     return model
 
 
@@ -134,17 +132,17 @@ def train_top_model():
 
 
 def get_top_model_architecture(input_shape):
-    dropout_rate = 0.5
+    dropout_rate = 0.7
     model = Sequential()
     model.add(Flatten(input_shape=input_shape))
     model.add(Dropout(dropout_rate))
     model.add(Dense(144,
-                    kernel_regularizer=l2(0.005),
+                    kernel_regularizer=l2(0.01),
                     activation='softmax'))
     return model
 
 
-def predict(model_path="fine_tuned_model_bak_10.h5"):
+def predict(model_path="fine_tuned_model_bak_7.h5"):
     model_weights_path = os.path.join(temp_folder_path, model_path)
 
     pretrained_model = get_pretrained_inception_v4()
@@ -207,9 +205,9 @@ def fine_tuning_cnn():
 
     model = Model(inputs=pretrained_model.input, outputs=top_model(pretrained_model.output))
 
-    for layer in model.layers[:164]:
+    for layer in model.layers[:120]:
         layer.trainable = False
-    for layer in model.layers[164:]:
+    for layer in model.layers[120:]:
         layer.trainable = True
 
     for i, layer in enumerate(model.layers):
@@ -236,13 +234,11 @@ def fine_tuning_cnn():
     model.save_weights(fine_tuned_model_weights_path)
 
 
-# save_bottlebeck_features()
+save_bottlebeck_features()
 # train_top_model()
 # fine_tuning_cnn()
 # predict()
 
-
-predict(model_path="fine_tuned_model_bak_8.h5")
 
 
 
@@ -273,32 +269,7 @@ predict(model_path="fine_tuned_model_bak_8.h5")
 #     print("saved: " + str(np.average(validation_data[i])))
 #     print(validation_data[i].shape)
 
-# id 10 do 0.5 l2 0.005 freeze 228 ready
-# Epoch 183/500
-# 100/100 [==============================] - 85s - loss: 1.3249 - categorical_accuracy: 0.9938 - val_loss: 2.0931 - val_categorical_accuracy: 0.8086
-# Epoch 184/500
-# 100/100 [==============================] - 85s - loss: 1.3272 - categorical_accuracy: 0.9912 - val_loss: 2.0584 - val_categorical_accuracy: 0.8164
-# Epoch 185/500
-# 100/100 [==============================] - 84s - loss: 1.3225 - categorical_accuracy: 0.9919 - val_loss: 2.0861 - val_categorical_accuracy: 0.8005
-# Epoch 186/500
-# 100/100 [==============================] - 85s - loss: 1.3187 - categorical_accuracy: 0.9909 - val_loss: 2.0313 - val_categorical_accuracy: 0.8164
-# Epoch 187/500
-# 100/100 [==============================] - 84s - loss: 1.3246 - categorical_accuracy: 0.9925 - val_loss: 2.0075 - val_categorical_accuracy: 0.8229
 
-
-
-# id 9 do 0.7 l2 0.01 freeze 229 ready
-# Epoch 164/500
-# 100/100 [==============================] - 84s - loss: 2.0624 - categorical_accuracy: 0.9791 - val_loss: 2.6070 - val_categorical_accuracy: 0.8112
-# Epoch 165/500
-# 100/100 [==============================] - 84s - loss: 2.0512 - categorical_accuracy: 0.9847 - val_loss: 2.6015 - val_categorical_accuracy: 0.8151
-# Epoch 166/500
-# 100/100 [==============================] - 84s - loss: 2.0411 - categorical_accuracy: 0.9853 - val_loss: 2.6219 - val_categorical_accuracy: 0.8112
-# Epoch 167/500
-# 100/100 [==============================] - 85s - loss: 2.0359 - categorical_accuracy: 0.9825 - val_loss: 2.6085 - val_categorical_accuracy: 0.8047
-# Epoch 168/500
-# 100/100 [==============================] - 84s - loss: 2.0469 - categorical_accuracy: 0.9866 - val_loss: 2.5873 - val_categorical_accuracy: 0.8165
-#
 
 # id 8 do 0.5 l2 0.01 freeze 292 ready
 # Epoch 153/500
