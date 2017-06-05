@@ -13,11 +13,11 @@ def get_train_generator(training_data_dir="/home/sdjksdafji/Documents/others/Dat
                         batch_size=BATCH_SIZE):
     train_datagen = ImageDataGenerator(
         preprocessing_function=preprocessing_function,
-        rotation_range=30,
-        width_shift_range=0.1,
-        height_shift_range=0.1,
-        shear_range=0.1,
-        zoom_range=0.1,
+        rotation_range=60,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.2,
+        zoom_range=0.2,
         horizontal_flip=True,
         fill_mode="nearest")
     return train_datagen.flow_from_directory(
